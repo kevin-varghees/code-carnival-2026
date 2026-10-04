@@ -26,8 +26,6 @@ The platform combines QR-based check-ins, event management tools, live attendanc
 
 ## 🛠️ Technologies Used
 
-To be updated with the technologies used in the final implementation.
-
 - Frontend: To be confirmed
 - Backend: To be confirmed
 - Database: To be confirmed
@@ -42,16 +40,14 @@ To be updated with the technologies used in the final implementation.
 | Rohith | Frontend / UI-UX |
 | Pooja | Backend / Database |
 | Nithin | AI Assistant |
-| Member 5 | To be updated |
-| Member 6 | To be updated |
 
 ## 📸 Screenshots
 
-Project screenshots will be added here as development progresses.
+Screenshots of the EventEase platform will be added as development progresses.
 
 ## 🚀 Installation Instructions
 
-Installation instructions will be added after the project structure and technology stack are finalized.
+Installation instructions will be added once the project structure and technology stack are finalized.
 
 ## 🗺️ Project Status
 
@@ -59,7 +55,7 @@ Installation instructions will be added after the project structure and technolo
 
 ## 🤝 Contribution
 
-Team members should keep their contributions organized, use meaningful commit messages, and test changes before merging them into the main branch.
+Team members collaborate through GitHub to maintain organized code, meaningful commit messages, and tested changes.
 
 ---
 
