@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models import User
-from app.schemas.auth import Token, UserCreate, UserLogin, UserOut
+from app.schemas.auth import Token, UserCreate, UserLogin, UserOut, UserUpdateSchema
 from app.services.auth_service import (
     create_access_token,
     get_password_hash,
@@ -66,4 +66,19 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
 
 @router.get("/me", response_model=UserOut)
 def read_current_user(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.put("/me", response_model=UserOut)
+def update_profile(
+    payload: UserUpdateSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    current_user.name = payload.name or current_user.name
+    current_user.linkedin = payload.linkedin
+    current_user.github = payload.github
+    current_user.avatar_url = payload.avatar_url
+    db.commit()
+    db.refresh(current_user)
     return current_user

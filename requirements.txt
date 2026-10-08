@@ -10,3 +10,4 @@ bcrypt==4.0.1
 python-dotenv>=1.0.1
 # Uncomment if you use PostgreSQL instead of SQLite
 # psycopg2-binary>=2.9.9
+# uvicorn app.main:app --reload to run backend

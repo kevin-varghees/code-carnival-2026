@@ -9,3 +9,13 @@ __pycache__/
 .env
 *.db
 .venv/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Node & Frontend
+frontend/node_modules/
+frontend/dist/
+.DS_Store
