@@ -1,27 +1,36 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, UserPlus, Sparkles, Loader2, ArrowRight } from 'lucide-react';
-import api, { errMsg } from '../api/client';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Mail,
+  Lock,
+  User,
+  UserPlus,
+  Sparkles,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
+import api, { errMsg } from "../api/client";
 
 export default function Signup({ setUser }) {
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     try {
-      const { data } = await api.post('/auth/register', form);
-      localStorage.setItem('token', data.token);
+      const { data } = await api.post("/api/auth/signup", form);
+      localStorage.setItem("token", data.token);
       setUser(data.user);
-      navigate('/');
+      navigate("/");
     } catch (err) {
-      setError(errMsg(err, 'Failed to create account.'));
+      setError(errMsg(err, "Failed to create account."));
     } finally {
       setLoading(false);
     }
@@ -38,13 +47,16 @@ export default function Signup({ setUser }) {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-teal-950/50 border border-teal-800/50 backdrop-blur-xl text-teal-400 mb-6 shadow-[0_0_30px_rgba(20,184,166,0.15)]">
             <UserPlus className="w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">Create Account</h1>
-          <p className="text-teal-500/80 text-sm">Join the campus network to start registering for events.</p>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">
+            Create Account
+          </h1>
+          <p className="text-teal-500/80 text-sm">
+            Join the campus network to start registering for events.
+          </p>
         </div>
 
         {/* Green Glassmorphism Card */}
         <div className="bg-[#062c1e]/40 border border-[#0d4a35]/50 backdrop-blur-2xl rounded-3xl p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150">
-          
           {error && (
             <div className="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm text-center">
               {error}
@@ -53,7 +65,9 @@ export default function Signup({ setUser }) {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pl-1">Full Name</label>
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pl-1">
+                Full Name
+              </label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-600/70 pointer-events-none" />
                 <input
@@ -69,7 +83,9 @@ export default function Signup({ setUser }) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pl-1">Email Address</label>
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pl-1">
+                Email Address
+              </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-600/70 pointer-events-none" />
                 <input
@@ -85,7 +101,9 @@ export default function Signup({ setUser }) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pl-1">Password</label>
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pl-1">
+                Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-600/70 pointer-events-none" />
                 <input
@@ -106,15 +124,22 @@ export default function Signup({ setUser }) {
               disabled={loading}
               className="w-full py-4 mt-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(16,185,129,0.2)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-70 disabled:hover:scale-100"
             >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-              {loading ? 'Creating Account...' : 'Join EventEase'}
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Sparkles className="w-5 h-5" />
+              )}
+              {loading ? "Creating Account..." : "Join EventEase"}
             </button>
           </form>
         </div>
 
         <p className="text-center text-sm text-zinc-400 mt-8 animate-in fade-in duration-1000 delay-300">
-          Already have an account?{' '}
-          <Link to="/login" className="text-emerald-400 font-semibold hover:text-emerald-300 hover:underline inline-flex items-center gap-1 transition-colors">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-emerald-400 font-semibold hover:text-emerald-300 hover:underline inline-flex items-center gap-1 transition-colors"
+          >
             Sign in here <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </p>
