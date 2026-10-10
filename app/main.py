@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.ai_agent.router import router as ai_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.routers import auth, checkin, events, registrations, attendance
@@ -27,7 +28,7 @@ app.include_router(events.router, prefix="/api")
 app.include_router(registrations.router, prefix="/api")
 app.include_router(checkin.router, prefix="/api")
 app.include_router(attendance.router, prefix="/api")
-
+app.include_router(ai_router, prefix="/api/ai")
 @app.get("/")
 def read_root():
     return {"message": "Welcome to EventEase API! Everything is running smoothly."}
