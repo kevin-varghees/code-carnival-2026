@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import APIClient from './api/client';
 import Navbar from './components/Navbar';
 import Explore from './pages/Explore';
+import Events from './pages/Events';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import EventDetails from './pages/EventDetails';
@@ -32,6 +33,11 @@ function HypeManWidget() {
       "Stop scrolling and touch some digital grass. 🌱",
       "No cap, this landing page is serving. 💅",
       "Are we cooking or what? 🔥"
+    ],
+    '/events': [
+      "Look at all these domains! Pick your poison. ⚡",
+      "Finding the ultimate hackathon? Say less. 🎯",
+      "Filter by domain, lock in, and conquer. 🚀"
     ],
     '/tickets': [
       "Gatekeeping these tickets? Nah, we flexing. 🎟️",
@@ -168,6 +174,7 @@ function AnimatedRoutes({ user, setUser, handleLogout }) {
     <div key={location.pathname} className="premium-page-transition w-full h-full">
       <Routes location={location}>
         <Route path="/" element={<Explore user={user} />} />
+        <Route path="/events" element={<Events />} />
         
         <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login setUser={setUser} />} />
         <Route path="/signup" element={user ? <Navigate to="/" replace /> : <Signup setUser={setUser} />} />
@@ -193,7 +200,6 @@ export default function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      // Merged: Updated to match teammate's correct /api/auth/me route prefix
       APIClient.get("/api/auth/me")
         .then((res) => {
           setUser(res.data);

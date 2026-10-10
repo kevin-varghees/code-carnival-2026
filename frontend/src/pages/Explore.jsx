@@ -51,7 +51,7 @@ const ScrollReveal = ({ children, direction = 'up', delay = 0 }) => {
     switch (direction) {
       case 'left': return 'translateX(-100px)';
       case 'right': return 'translateX(100px)';
-      case 'up': return 'translateY(80px)';     
+      case 'up': return 'translateY(80px)';    
       case 'down': return 'translateY(-80px)';  
       default: return 'translateY(80px)';
     }
@@ -73,6 +73,125 @@ const ScrollReveal = ({ children, direction = 'up', delay = 0 }) => {
 };
 // =========================================================================
 
+// =========================================================================
+// OPTIMIZED BALANCED-DENSITY FALLING STAR BACKGROUND
+// =========================================================================
+function OptimizedFallingStarBackground() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    const mouse = { x: null, y: null, radius: 140 };
+    const handleMouseMove = (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    };
+    const handleMouseLeave = () => {
+      mouse.x = null;
+      mouse.y = null;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseleave', handleMouseLeave);
+
+    // Balanced density (smooth 60fps performance)
+    const particleCount = Math.min(Math.floor((width * height) / 14000), 85);
+    const particles = Array.from({ length: particleCount }).map(() => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: Math.random() * 0.7 + 0.3,
+      radius: Math.random() * 2 + 1,
+      color: Math.random() > 0.4 ? 'rgba(16, 185, 129, 0.65)' : 'rgba(20, 184, 166, 0.55)',
+      angle: Math.random() * Math.PI * 2,
+      sinSpeed: Math.random() * 0.02 + 0.01,
+    }));
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach((p, index) => {
+        p.angle += p.sinSpeed;
+        p.x += p.vx + Math.sin(p.angle) * 0.35;
+        p.y += p.vy;
+
+        if (p.y > height + 10) {
+          p.y = -10;
+          p.x = Math.random() * width;
+        }
+        if (p.x < -10) p.x = width + 10;
+        if (p.x > width + 10) p.x = -10;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#10b981';
+        ctx.fill();
+
+        // Connect with cursor
+        if (mouse.x !== null && mouse.y !== null) {
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < mouse.radius) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.strokeStyle = `rgba(16, 185, 129, ${1 - dist / mouse.radius})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+
+        // Connect neighbor particles efficiently
+        for (let j = index + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(16, 185, 129, ${0.2 * (1 - dist / 100)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseleave', handleMouseLeave);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />;
+}
+// =========================================================================
+
 export default function Explore({ user }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +203,6 @@ export default function Explore({ user }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Merged: Kept teammate's correct /api/events endpoint
     APIClient.get('/api/events')
       .then((res) => {
         setEvents(res.data);
@@ -109,7 +227,6 @@ export default function Explore({ user }) {
 
   const handleCreateEventClick = () => {
     if (!user) {
-      // Merged: Kept teammate's Organizer routing flow
       navigate('/login', { state: { from: '/organizer' } });
     } else {
       navigate('/organizer');
@@ -136,7 +253,6 @@ export default function Explore({ user }) {
 
     if (selectedCategory === "All") return matchesSearch;
 
-    // Merged: Kept teammate's robust category matching logic
     const matchesCategory =
       (event.category &&
         event.category.toLowerCase() === selectedCategory.toLowerCase()) ||
@@ -156,7 +272,6 @@ export default function Explore({ user }) {
   return (
     <div className="relative min-h-screen text-zinc-100 bg-[#010101] overflow-hidden">
       
-      {/* Visual Animation Styling */}
       <style>
         {`
           @keyframes shooting {
@@ -186,7 +301,6 @@ export default function Explore({ user }) {
             box-shadow: 0 0 15px 4px rgba(16, 185, 129, 0.9);
           }
           
-          /* Smooth Gemini-style Flowing Gradient */
           @keyframes geminiGlow {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -195,11 +309,11 @@ export default function Explore({ user }) {
           .text-gemini-glow {
             background: linear-gradient(
               to right,
-              #10b981, /* Emerald */
-              #06b6d4, /* Cyan */
-              #3b82f6, /* Gemini Blue */
-              #39ff14, /* Neon Green */
-              #10b981  /* Back to Emerald for smooth loop */
+              #10b981, 
+              #06b6d4, 
+              #3b82f6, 
+              #39ff14, 
+              #10b981 
             );
             background-size: 200% auto;
             -webkit-background-clip: text;
@@ -211,26 +325,13 @@ export default function Explore({ user }) {
         `}
       </style>
 
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-[#010101]" /> 
-        <svg className="absolute inset-0 w-full h-full opacity-40" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="star-pattern" width="150" height="150" patternUnits="userSpaceOnUse">
-              <circle cx="20" cy="30" r="1" fill="#ffffff" opacity="0.6"/>
-              <circle cx="90" cy="50" r="1.5" fill="#10b981" opacity="0.4"/>
-              <circle cx="50" cy="110" r="1" fill="#ffffff" opacity="0.3"/>
-              <circle cx="120" cy="120" r="0.8" fill="#ffffff" opacity="0.8"/>
-              <circle cx="130" cy="20" r="2" fill="#06b6d4" opacity="0.15"/>
-              <circle cx="70" cy="140" r="1.2" fill="#ffffff" opacity="0.5"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#star-pattern)" />
-        </svg>
+      {/* Optimized Balanced Star Background Canvas */}
+      <OptimizedFallingStarBackground />
 
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-emerald-800/20 rounded-full blur-[140px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-teal-900/20 rounded-full blur-[150px]" />
 
-        {/* Merged: Combined base meteors with teammate's extra meteors */}
         <div className="meteor w-32 top-[10%] left-[20%]" style={{ animationDelay: '0s', animationDuration: '6s' }} />
         <div className="meteor w-48 top-[5%] left-[50%]" style={{ animationDelay: '1.2s', animationDuration: '4.5s' }} />
         <div className="meteor w-24 top-[30%] left-[10%]" style={{ animationDelay: '2.8s', animationDuration: '7s' }} />
@@ -241,7 +342,6 @@ export default function Explore({ user }) {
       {/* Hero Content Section */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-8 text-center animate-in fade-in zoom-in-95 duration-1000">
         
-        {/* Merged: Kept your larger welcome badge */}
         <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-md text-emerald-400 text-sm font-semibold mb-6 shadow-sm">
           <Sparkles className="w-4 h-4" />
           <span>{user ? `Welcome back, ${user.name}` : 'Welcome to EventEase'}</span>
@@ -249,7 +349,6 @@ export default function Explore({ user }) {
 
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-6 drop-shadow-md">
           Find a campus event. Register. <br />
-          {/* Merged: Kept your Gemini Style Glowing Gradient Text */}
           <span className="inline-block mt-2 text-gemini-glow pb-2">
             Walk in with a scan.
           </span>
@@ -295,7 +394,6 @@ export default function Explore({ user }) {
         </ScrollReveal>
       </div>
 
-      {/* Merged: Kept your z-[100] overlap fix for Search Bar */}
       <div className="relative z-[100] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
         <ScrollReveal direction="down">
           <div ref={searchContainerRef} className="relative max-w-4xl mx-auto w-full">
@@ -489,7 +587,6 @@ export default function Explore({ user }) {
                   <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/50 transition-all shadow-sm">
                     <Linkedin className="w-4 h-4" />
                   </a>
-                  {/* Merged: Kept teammate's added Twitter link */}
                   <a href="https://twitter.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/50 transition-all shadow-sm">
                     <Twitter className="w-4 h-4" />
                   </a>

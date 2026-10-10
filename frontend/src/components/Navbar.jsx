@@ -52,6 +52,9 @@ export default function Navbar({ user }) {
           <NavLink to="/" end className={link}>
             <Compass className="h-4 w-4" /> Explore
           </NavLink>
+          <NavLink to="/events" className={link}>
+            <Calendar className="h-4 w-4" /> Events
+          </NavLink>
           <NavLink to="/tickets" className={link}>
             <Ticket className="h-4 w-4" /> My Tickets
           </NavLink>
