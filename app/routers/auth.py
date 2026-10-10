@@ -12,7 +12,7 @@ from app.services.auth_service import (
     verify_password,
 )
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 
 def _build_token(user: User) -> Token:
@@ -24,10 +24,11 @@ def _build_token(user: User) -> Token:
     )
 
 
-# CHANGED: Route is now "/register" to perfectly match the React frontend API call
+# Preserved: Route kept as "/register" to match the React frontend API call
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(payload: UserCreate, db: Session = Depends(get_db)):
     email = payload.email.lower()
+    
     if db.query(User).filter(User.email == email).first():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -38,12 +39,12 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
         name=payload.name.strip(),
         email=email,
         hashed_password=get_password_hash(payload.password),
-        
-        # Note: If your React frontend doesn't send a 'role', ensure your UserCreate 
-        # schema provides a default value for payload.role (e.g., 'attendee')
+        # Preserved: Safe role assignment to prevent frontend crashes if role is missing
         role=getattr(payload, 'role', 'attendee'), 
     )
+    
     db.add(user)
+    
     try:
         db.commit()
     except IntegrityError:
@@ -52,6 +53,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
             status_code=status.HTTP_409_CONFLICT,
             detail="Email is already registered",
         )
+        
     db.refresh(user)
     return _build_token(user)
 
@@ -59,12 +61,14 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=Token)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email.lower()).first()
+    
     if user is None or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+        
     return _build_token(user)
 
 
@@ -83,6 +87,7 @@ def update_profile(
     current_user.linkedin = payload.linkedin
     current_user.github = payload.github
     current_user.avatar_url = payload.avatar_url
+    
     db.commit()
     db.refresh(current_user)
     return current_user

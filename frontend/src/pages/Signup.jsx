@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import APIClient from '../api/client';
+import api, { errMsg } from '../api/client';
 import { 
   Sparkles, User, Mail, Lock, ArrowRight, GraduationCap, 
-  Building2, BookOpen, Github, Linkedin 
+  Building2, BookOpen, Github, Linkedin, Loader2 
 } from 'lucide-react';
 
 export default function Signup({ setUser }) {
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({ 
-    firstName: '', 
-    lastName: '', 
+    name: '',
     email: '', 
     password: '',
     graduationStatus: '',
@@ -41,7 +40,6 @@ export default function Signup({ setUser }) {
   };
 
   const handleSocialLogin = (provider) => {
-    // In a real app, this redirects to your backend OAuth endpoint (e.g., /auth/google)
     alert(`Connecting to ${provider}... OAuth integration required on the backend.`);
   };
 
@@ -52,7 +50,7 @@ export default function Signup({ setUser }) {
 
     try {
       const payload = {
-        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        name: formData.name.trim(),
         email: formData.email,
         password: formData.password,
         graduation_status: formData.graduationStatus,
@@ -63,17 +61,13 @@ export default function Signup({ setUser }) {
         interests: formData.interests
       };
 
-      const response = await APIClient.post('/auth/register', payload);
+      const { data } = await api.post('/api/auth/register', payload);
       
-      localStorage.setItem('token', response.data.token);
-      setUser(response.data.user);
+      localStorage.setItem('token', data.token);
+      setUser(data.user);
       navigate('/');
     } catch (err) {
-      if (err.response?.status === 404) {
-        setError('API Endpoint Not Found (404). Check your Flask/FastAPI routes.');
-      } else {
-        setError(err.response?.data?.detail || err.response?.data?.message || 'Failed to create account. Please try again.');
-      }
+      setError(errMsg(err, 'Failed to create account. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -105,9 +99,7 @@ export default function Signup({ setUser }) {
           </div>
         )}
 
-        {/* ========================================= */}
-        {/* SOCIAL LOGIN ACCELERATORS                 */}
-        {/* ========================================= */}
+        {/* SOCIAL LOGIN ACCELERATORS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <button 
             type="button" 
@@ -148,20 +140,14 @@ export default function Signup({ setUser }) {
           <div>
             <h3 className="text-sm font-bold text-white border-b border-zinc-800/80 pb-2 mb-4">Account Details</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider pl-1">First Name</label>
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider pl-1">Full Name</label>
                 <div className="relative flex items-center focus-within:text-emerald-400 text-zinc-500 transition-colors">
                   <User className="absolute left-4 w-4 h-4 pointer-events-none" />
-                  <input type="text" required value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} className="w-full bg-[#050505] border border-zinc-800/80 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all shadow-inner" placeholder="Alex" />
+                  <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full bg-[#050505] border border-zinc-800/80 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all shadow-inner" placeholder="Alex Rivera" />
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider pl-1">Last Name</label>
-                <div className="relative flex items-center focus-within:text-emerald-400 text-zinc-500 transition-colors">
-                  <User className="absolute left-4 w-4 h-4 pointer-events-none" />
-                  <input type="text" required value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} className="w-full bg-[#050505] border border-zinc-800/80 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all shadow-inner" placeholder="Rivera" />
-                </div>
-              </div>
+              
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider pl-1">Email Address</label>
                 <div className="relative flex items-center focus-within:text-emerald-400 text-zinc-500 transition-colors">
@@ -169,6 +155,7 @@ export default function Signup({ setUser }) {
                   <input type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full bg-[#050505] border border-zinc-800/80 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all shadow-inner" placeholder="alex@university.edu" />
                 </div>
               </div>
+
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider pl-1">Password</label>
                 <div className="relative flex items-center focus-within:text-emerald-400 text-zinc-500 transition-colors">
@@ -270,7 +257,7 @@ export default function Signup({ setUser }) {
             className="w-full mt-4 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-sm shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
           >
             {loading ? (
-              <span className="flex items-center gap-2 animate-pulse">Setting up your profile...</span>
+              <span className="flex items-center gap-2 animate-pulse"><Loader2 className="w-4 h-4 animate-spin" /> Setting up your profile...</span>
             ) : (
               <>
                 Create Account <ArrowRight className="w-4 h-4" />

@@ -26,7 +26,6 @@ function HypeManWidget() {
 
   const doodleSeeds = ["Felix", "Aneka", "Jocelyn", "Adrian", "Lilith", "Brian", "Sam", "Jack", "Leo", "Tigger", "Oliver"];
 
-  // Completely unhinged & funny Gen-Z quotes mapped to specific pages
   const pageQuotes = {
     '/': [
       "Bruh, these events are literally built different. 💀",
@@ -64,26 +63,21 @@ function HypeManWidget() {
     ]
   };
 
-  // 1. SILENT SNEAK ON ROUTE CHANGE
   useEffect(() => {
-    // Hide quietly without showing a message
     setIsHiding(true);
     setShowHypeBubble(false);
   }, [location.pathname]);
 
-  // 2. AUTO POP-OUT AFTER 45 SECONDS
   useEffect(() => {
     let timer;
     if (isHiding) {
-      // If he is hiding, start a 45 second countdown to pop out
       timer = setTimeout(() => {
         triggerPopOut();
       }, 45000); 
     }
-    return () => clearTimeout(timer); // Reset timer if clicked early or route changes
+    return () => clearTimeout(timer);
   }, [isHiding, location.pathname]);
 
-  // 3. POP-OUT LOGIC
   const triggerPopOut = () => {
     setIsHiding(false);
     const quotes = pageQuotes[location.pathname] || pageQuotes['/'];
@@ -92,7 +86,6 @@ function HypeManWidget() {
     setShowHypeBubble(true);
   };
 
-  // Skip rendering on auth pages safely
   if (location.pathname === '/login' || location.pathname === '/signup') {
     return null;
   }
@@ -106,7 +99,6 @@ function HypeManWidget() {
       }`}
       onClick={isHiding ? triggerPopOut : undefined}
     >
-      {/* Speech Bubble (Only renders when NOT sneaking!) */}
       {showHypeBubble && !isHiding && (
         <div className="relative mb-3 max-w-[190px] animate-in slide-in-from-left-4 fade-in duration-500">
           <div className="px-4 py-3 bg-[#0a0f0d]/95 backdrop-blur-2xl border border-emerald-500/45 rounded-2xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.8)] text-left relative z-10">
@@ -118,7 +110,7 @@ function HypeManWidget() {
               onClick={(e) => {
                 e.stopPropagation();
                 setShowHypeBubble(false);
-                setIsHiding(true); // Click X to send him back to the shadows
+                setIsHiding(true);
               }}
               className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-[10px] text-zinc-400 hover:text-white hover:bg-red-500/20 transition-colors"
               aria-label="Send guide to hiding"
@@ -130,10 +122,9 @@ function HypeManWidget() {
         </div>
       )}
       
-      {/* Character Doodle */}
       <div 
         className="relative flex flex-col items-center ml-2"
-        onClick={!isHiding ? triggerPopOut : undefined} // Tapping while popped out generates a new joke
+        onClick={!isHiding ? triggerPopOut : undefined}
       >
         <div 
           className={`w-18 h-18 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-zinc-950 via-emerald-950/25 to-[#050505] border-2 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center justify-center cursor-pointer transition-all duration-500 overflow-hidden select-none bg-[#010101] ${
@@ -150,7 +141,6 @@ function HypeManWidget() {
           />
         </div>
         
-        {/* Glow indicator only visible when actively popped out */}
         {!isHiding && (
           <>
             <span className="absolute top-0 right-1.5 flex h-3 w-3">
@@ -201,15 +191,16 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
-      APIClient.get('/auth/me')
+      // Merged: Updated to match teammate's correct /api/auth/me route prefix
+      APIClient.get("/api/auth/me")
         .then((res) => {
           setUser(res.data);
           setLoading(false);
         })
         .catch(() => {
-          localStorage.removeItem('token');
+          localStorage.removeItem("token");
           setLoading(false);
         });
     } else {
@@ -218,11 +209,16 @@ export default function App() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setUser(null);
   };
 
-  if (loading) return <div className="min-h-screen bg-[#010101] flex items-center justify-center text-zinc-500 font-medium">Loading EventEase...</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen bg-[#010101] flex items-center justify-center text-zinc-500 font-medium">
+        Loading EventEase...
+      </div>
+    );
 
   return (
     <BrowserRouter>

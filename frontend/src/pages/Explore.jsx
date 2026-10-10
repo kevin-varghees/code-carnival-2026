@@ -2,7 +2,29 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import APIClient from '../api/client';
 import EventCard from '../components/EventCard';
-import { Sparkles, PlusCircle, Compass, Search, Code2, Cpu, Palette, Rocket, Music, Terminal, ArrowRight, Zap, Users, QrCode, ShieldCheck, Flame, Layers, Github, Linkedin, Mail } from 'lucide-react';
+import {
+  Sparkles,
+  PlusCircle,
+  Compass,
+  Search,
+  Code2,
+  Cpu,
+  Palette,
+  Rocket,
+  Music,
+  Terminal,
+  ArrowRight,
+  Zap,
+  Users,
+  QrCode,
+  ShieldCheck,
+  Flame,
+  Layers,
+  Github,
+  Linkedin,
+  Twitter,
+  Mail,
+} from 'lucide-react';
 
 // =========================================================================
 // CUSTOM SCROLL REVEAL COMPONENT 
@@ -62,7 +84,8 @@ export default function Explore({ user }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    APIClient.get('/events')
+    // Merged: Kept teammate's correct /api/events endpoint
+    APIClient.get('/api/events')
       .then((res) => {
         setEvents(res.data);
         setLoading(false);
@@ -73,19 +96,23 @@ export default function Explore({ user }) {
       });
 
     const handleClickOutside = (event) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
         setIsSearchFocused(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleCreateEventClick = () => {
     if (!user) {
-      navigate('/login', { state: { from: '/create-event' } });
+      // Merged: Kept teammate's Organizer routing flow
+      navigate('/login', { state: { from: '/organizer' } });
     } else {
-      navigate('/create-event');
+      navigate('/organizer');
     }
   };
 
@@ -100,21 +127,26 @@ export default function Explore({ user }) {
   ];
 
   const filteredEvents = events.filter((event) => {
-    const matchesSearch = 
+    const matchesSearch =
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.event_code.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    if (selectedCategory === 'All') return matchesSearch;
-    
-    return matchesSearch && (
+      (event.event_code &&
+        event.event_code.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    if (selectedCategory === "All") return matchesSearch;
+
+    // Merged: Kept teammate's robust category matching logic
+    const matchesCategory =
+      (event.category &&
+        event.category.toLowerCase() === selectedCategory.toLowerCase()) ||
       event.title.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      event.description.toLowerCase().includes(selectedCategory.toLowerCase())
-    );
+      event.description.toLowerCase().includes(selectedCategory.toLowerCase());
+
+    return matchesSearch && matchesCategory;
   });
 
-  const isFiltering = searchQuery.trim() !== '' || selectedCategory !== 'All';
+  const isFiltering = searchQuery.trim() !== "" || selectedCategory !== "All";
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -198,15 +230,18 @@ export default function Explore({ user }) {
         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-emerald-800/20 rounded-full blur-[140px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-teal-900/20 rounded-full blur-[150px]" />
 
+        {/* Merged: Combined base meteors with teammate's extra meteors */}
         <div className="meteor w-32 top-[10%] left-[20%]" style={{ animationDelay: '0s', animationDuration: '6s' }} />
         <div className="meteor w-48 top-[5%] left-[50%]" style={{ animationDelay: '1.2s', animationDuration: '4.5s' }} />
         <div className="meteor w-24 top-[30%] left-[10%]" style={{ animationDelay: '2.8s', animationDuration: '7s' }} />
+        <div className="meteor w-40 top-[-5%] left-[70%]" style={{ animationDelay: '4.1s', animationDuration: '5s' }} />
+        <div className="meteor w-28 top-[40%] left-[80%]" style={{ animationDelay: '5.5s', animationDuration: '6.5s' }} />
       </div>
 
       {/* Hero Content Section */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-8 text-center animate-in fade-in zoom-in-95 duration-1000">
         
-        {/* NEW: Increased the size of the Welcome Badge */}
+        {/* Merged: Kept your larger welcome badge */}
         <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-md text-emerald-400 text-sm font-semibold mb-6 shadow-sm">
           <Sparkles className="w-4 h-4" />
           <span>{user ? `Welcome back, ${user.name}` : 'Welcome to EventEase'}</span>
@@ -214,7 +249,7 @@ export default function Explore({ user }) {
 
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-6 drop-shadow-md">
           Find a campus event. Register. <br />
-          {/* Gemini Style Glowing Gradient Text */}
+          {/* Merged: Kept your Gemini Style Glowing Gradient Text */}
           <span className="inline-block mt-2 text-gemini-glow pb-2">
             Walk in with a scan.
           </span>
@@ -260,7 +295,7 @@ export default function Explore({ user }) {
         </ScrollReveal>
       </div>
 
-      {/* Search Bar Container */}
+      {/* Merged: Kept your z-[100] overlap fix for Search Bar */}
       <div className="relative z-[100] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
         <ScrollReveal direction="down">
           <div ref={searchContainerRef} className="relative max-w-4xl mx-auto w-full">
@@ -453,6 +488,10 @@ export default function Explore({ user }) {
                   </a>
                   <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/50 transition-all shadow-sm">
                     <Linkedin className="w-4 h-4" />
+                  </a>
+                  {/* Merged: Kept teammate's added Twitter link */}
+                  <a href="https://twitter.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/50 transition-all shadow-sm">
+                    <Twitter className="w-4 h-4" />
                   </a>
                 </div>
                 <a href="mailto:support@eventease.com" className="text-sm text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-2">
