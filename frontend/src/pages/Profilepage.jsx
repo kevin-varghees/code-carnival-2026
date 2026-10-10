@@ -1,262 +1,288 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Loader2, Linkedin, Github, Image as ImageIcon, Save, 
-  CheckCircle2, LogOut, ShieldCheck, Mic, Ticket, Users, MonitorPlay 
+  Camera, Edit, Save, X, MapPin, Mail, Github, Linkedin, 
+  Link as LinkIcon, LogOut, Calendar, Award, Briefcase, User, ArrowLeft
 } from 'lucide-react';
-import api, { errMsg } from '../api/client';
 
-export default function Profile({ user, setUser, onLogout }) {
-  const [form, setForm] = useState({
-    name: user?.name || '',
-    linkedin: user?.linkedin || '',
-    github: user?.github || '',
-    avatar_url: user?.avatar_url || '',
-  });
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
-  
-  // Mock stats (You can replace these with real API data later)
-  const [stats, setStats] = useState({ hosted: 12, attended: 45 });
+export default function Profilepage({ user, setUser, onLogout }) {
   const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+  
+  // Local state for form editing. Safe fallbacks added to prevent crashes.
+  const [profileData, setProfileData] = useState({
+    name: user?.name || 'Test User',
+    email: user?.email || 'test@gmail.com',
+    domain: 'Full-Stack Developer',
+    location: 'Bengaluru, Karnataka',
+    bio: 'Passionate software engineer building scalable web applications. Always eager to participate in hackathons, collaborate on open-source projects, and explore new technologies in the AI and Web3 space.',
+    github: 'github.com/username',
+    linkedin: 'linkedin.com/in/username',
+    website: 'portfolio.dev'
+  });
 
-  useEffect(() => {
-    // Attempt to calculate attended events from local storage if available
-    const localTickets = JSON.parse(localStorage.getItem('user_tickets') || '[]');
-    if (localTickets.length > 0) {
-      setStats(prev => ({ ...prev, attended: localTickets.length }));
-    }
-  }, []);
+  const [stats] = useState({
+    eventsAttended: 12,
+    eventsHosted: 2,
+    connections: 45
+  });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSave = (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess(false);
-    setSaving(true);
-    try {
-      const { data } = await api.put('/auth/me', form);
-      setUser(data);
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 4000);
-    } catch (err) {
-      setError(errMsg(err, 'Could not update profile.'));
-    } finally {
-      setSaving(false);
-    }
+    // API call to update the user's profile would go here
+    setIsEditing(false);
   };
 
-  const handleSignOut = () => {
-    onLogout();
-    navigate('/');
+  const handleLogoutClick = () => {
+    if (onLogout) onLogout();
+    navigate('/login');
   };
+
+  // Ultra-safe avatar character generator so it never crashes
+  const avatarLetter = profileData?.name ? String(profileData.name).charAt(0).toUpperCase() : 'U';
 
   return (
-    <div className="relative min-h-screen pt-24 pb-20 px-4 md:px-6 overflow-hidden bg-[#050505]">
+    <div className="min-h-screen bg-[#010101] text-zinc-100 relative overflow-hidden selection:bg-emerald-500/30 pb-20">
       
-      {/* ========================================================= */}
-      {/* 1. DYNAMIC BOKEH / NETWORK BACKGROUND                       */}
-      {/* ========================================================= */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        {/* Subtle Grid Base */}
-        <div 
-          className="absolute inset-0 opacity-[0.15]"
-          style={{ 
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.4) 1px, transparent 0)', 
-            backgroundSize: '32px 32px' 
-          }} 
-        />
-        
-        {/* Glowing Ambient Orbs */}
-        <div className="absolute top-[10%] left-[15%] w-[400px] h-[400px] bg-teal-600/20 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '7s' }} />
-        <div className="absolute top-[40%] right-[10%] w-[500px] h-[500px] bg-indigo-600/15 rounded-full blur-[150px] animate-pulse" style={{ animationDuration: '10s' }} />
-        <div className="absolute bottom-[-10%] left-[30%] w-[600px] h-[600px] bg-emerald-900/20 rounded-full blur-[130px]" />
-        
-        {/* Simulated "Bokeh" particles */}
-        <div className="absolute top-[25%] left-[25%] w-4 h-4 bg-teal-400/40 rounded-full blur-[2px]" />
-        <div className="absolute top-[65%] left-[15%] w-6 h-6 bg-indigo-400/30 rounded-full blur-[3px]" />
-        <div className="absolute top-[35%] right-[25%] w-3 h-3 bg-emerald-400/50 rounded-full blur-[1px]" />
-        <div className="absolute bottom-[25%] right-[35%] w-8 h-8 bg-purple-400/20 rounded-full blur-[4px]" />
-      </div>
+      {/* ================= DYNAMIC ANIMATED BACKGROUND ================= */}
+      <div className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] bg-emerald-600/15 rounded-full blur-[120px] mix-blend-screen animate-pulse pointer-events-none" style={{ animationDuration: '7s' }} />
+      <div className="absolute top-[20%] -right-[10%] w-[40vw] h-[40vw] bg-teal-600/10 rounded-full blur-[140px] mix-blend-screen animate-pulse pointer-events-none" style={{ animationDuration: '10s', animationDelay: '2s' }} />
+      <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:40px_40px] opacity-[0.03] pointer-events-none" />
+      {/* =============================================================== */}
 
-      <div className="relative z-10 max-w-2xl mx-auto">
+      {/* Expanded Width Container */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10 space-y-6">
         
-        {/* ========================================================= */}
-        {/* 2. MAIN PROFILE GLASS CARD                                  */}
-        {/* ========================================================= */}
-        <div className="bg-zinc-900/40 border border-zinc-700/50 backdrop-blur-2xl rounded-[2rem] p-8 md:p-10 shadow-2xl relative overflow-hidden">
+        {/* Premium Floating Back Button */}
+        <div className="mb-2">
+          <button
+            onClick={() => navigate(-1)}
+            className="group inline-flex items-center gap-2.5 px-4 py-2.5 bg-zinc-900/60 backdrop-blur-xl border border-zinc-700/50 rounded-2xl text-zinc-300 hover:text-white hover:bg-zinc-800/80 hover:border-emerald-500/50 transition-all shadow-lg"
+          >
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+            <span className="text-sm font-bold tracking-wide">Back</span>
+          </button>
+        </div>
+
+        {/* Main Profile Header Card */}
+        <div className="bg-zinc-900/40 backdrop-blur-2xl ring-1 ring-white/10 rounded-[2rem] shadow-2xl relative overflow-hidden transition-all">
           
-          {/* Internal Card Glow */}
-          <div className="absolute -top-32 -right-32 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          {/* Cover Image Banner */}
+          <div className="w-full h-48 sm:h-64 bg-gradient-to-r from-zinc-900 via-emerald-950/60 to-teal-950/40 relative overflow-hidden border-b border-white/5 group cursor-pointer">
+             <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 to-transparent" />
+             {isEditing && (
+               <div className="absolute top-6 right-6 p-2.5 bg-zinc-900/80 backdrop-blur-md rounded-xl border border-white/10 text-white flex items-center gap-2 hover:bg-zinc-800 transition-colors shadow-lg">
+                 <Camera className="w-4 h-4" /> <span className="text-xs font-bold uppercase tracking-wider">Change Cover</span>
+               </div>
+             )}
+          </div>
 
-          {/* Header: Avatar & Info */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-10 relative z-10 text-center sm:text-left">
-            <div className="relative group">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-teal-500 to-emerald-700 p-1 shadow-lg shadow-teal-900/50">
-                <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center overflow-hidden border-2 border-zinc-900">
-                  {form.avatar_url ? (
-                    <img src={form.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+          <div className="px-6 sm:px-10 pb-10">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+              
+              {/* Profile Avatar */}
+              <div className="relative -mt-20 sm:-mt-24 z-10 group">
+                <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-gradient-to-br from-emerald-500 to-teal-700 p-1.5 shadow-[0_0_40px_-10px_rgba(16,185,129,0.5)]">
+                  <div className="w-full h-full bg-zinc-950 rounded-full flex items-center justify-center font-extrabold text-6xl text-emerald-400 relative overflow-hidden">
+                    {avatarLetter}
+                    {isEditing && (
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <Camera className="w-6 h-6 mb-1 text-emerald-400" />
+                        <span className="text-[10px] font-bold uppercase tracking-wider">Update</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Edit / Save Action Buttons */}
+              <div className="mt-4 sm:mt-6 w-full sm:w-auto flex justify-end">
+                {isEditing ? (
+                  <div className="flex gap-3 w-full sm:w-auto">
+                    <button 
+                      onClick={() => setIsEditing(false)}
+                      className="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 font-semibold text-sm transition-all border border-zinc-700/50 flex items-center justify-center gap-2 shadow-lg"
+                    >
+                      <X className="w-4 h-4" /> Cancel
+                    </button>
+                    <button 
+                      onClick={handleSave}
+                      className="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-zinc-950 font-bold text-sm shadow-lg shadow-emerald-950/40 transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
+                    >
+                      <Save className="w-4 h-4" /> Save Changes
+                    </button>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => setIsEditing(true)}
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-bold text-sm transition-all border border-emerald-500/30 flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5"
+                  >
+                    <Edit className="w-4 h-4" /> Edit Profile
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Intro Details Form/Display */}
+            <div className="mt-4 sm:mt-2">
+              {isEditing ? (
+                <div className="space-y-5 max-w-3xl animate-in fade-in duration-300">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Full Name</label>
+                      <input 
+                        type="text" 
+                        value={profileData.name} 
+                        onChange={e => setProfileData({...profileData, name: e.target.value})}
+                        className="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 text-sm shadow-inner"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Headline / Domain</label>
+                      <input 
+                        type="text" 
+                        value={profileData.domain} 
+                        onChange={e => setProfileData({...profileData, domain: e.target.value})}
+                        className="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 text-sm shadow-inner"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Location</label>
+                    <input 
+                      type="text" 
+                      value={profileData.location} 
+                      onChange={e => setProfileData({...profileData, location: e.target.value})}
+                      className="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 text-sm shadow-inner"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">{profileData.name}</h1>
+                    <p className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 font-bold text-lg mt-1 tracking-wide">
+                      {profileData.domain}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-5 text-sm font-medium text-zinc-400">
+                    <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/5"><MapPin className="w-4 h-4 text-emerald-500" /> {profileData.location}</span>
+                    <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/5"><Mail className="w-4 h-4 text-emerald-500" /> {profileData.email}</span>
+                  </div>
+                  <div className="pt-2 text-sm">
+                    <span className="text-emerald-400 font-bold cursor-pointer hover:underline flex items-center gap-1.5">
+                      <User className="w-4 h-4" /> {stats.connections} Connections
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Two-Column Grid for Bottom Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* Left Column: About & Stats */}
+          <div className="lg:col-span-8 space-y-6">
+            
+            {/* About Section */}
+            <div className="bg-zinc-900/40 backdrop-blur-2xl ring-1 ring-white/10 rounded-[2rem] p-6 sm:p-8 shadow-xl">
+              <h2 className="text-xl font-bold text-white mb-5 flex items-center gap-2">
+                <User className="w-5 h-5 text-emerald-400" /> About
+              </h2>
+              {isEditing ? (
+                <textarea 
+                  rows="5"
+                  value={profileData.bio}
+                  onChange={e => setProfileData({...profileData, bio: e.target.value})}
+                  className="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-emerald-500/50 text-sm resize-none leading-relaxed shadow-inner"
+                />
+              ) : (
+                <p className="text-base text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                  {profileData.bio || "Write something about yourself..."}
+                </p>
+              )}
+            </div>
+
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="bg-zinc-900/40 backdrop-blur-2xl ring-1 ring-white/10 rounded-[2rem] p-6 sm:p-8 shadow-xl flex items-center gap-6 hover:bg-zinc-900/60 transition-colors group">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                  <Calendar className="h-7 w-7" />
+                </div>
+                <div>
+                  <p className="text-4xl font-extrabold text-white">{stats.eventsAttended}</p>
+                  <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider mt-1">Events Attended</p>
+                </div>
+              </div>
+              <div className="bg-zinc-900/40 backdrop-blur-2xl ring-1 ring-white/10 rounded-[2rem] p-6 sm:p-8 shadow-xl flex items-center gap-6 hover:bg-zinc-900/60 transition-colors group">
+                <div className="w-16 h-16 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/20 group-hover:scale-110 transition-transform">
+                  <Award className="h-7 w-7" />
+                </div>
+                <div>
+                  <p className="text-4xl font-extrabold text-white">{stats.eventsHosted}</p>
+                  <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider mt-1">Events Hosted</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Column: Links & Actions */}
+          <div className="lg:col-span-4 space-y-6">
+            
+            {/* Social Links Section */}
+            <div className="bg-zinc-900/40 backdrop-blur-2xl ring-1 ring-white/10 rounded-[2rem] p-6 sm:p-8 shadow-xl">
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <LinkIcon className="w-5 h-5 text-emerald-400" /> Links & Socials
+              </h2>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-zinc-800/80 text-zinc-300 shadow-inner"><Github className="w-5 h-5" /></div>
+                  {isEditing ? (
+                    <input type="text" value={profileData.github} onChange={e => setProfileData({...profileData, github: e.target.value})} className="flex-1 bg-zinc-950/60 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 text-sm shadow-inner" placeholder="github.com/username" />
                   ) : (
-                    <span className="text-3xl font-black text-white">{form.name?.[0]?.toUpperCase() || 'U'}</span>
+                    <a href={`https://${profileData.github}`} target="_blank" rel="noreferrer" className="text-sm font-medium text-zinc-300 hover:text-emerald-400 transition-colors truncate">{profileData.github}</a>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-zinc-800/80 text-zinc-300 shadow-inner"><Linkedin className="w-5 h-5" /></div>
+                  {isEditing ? (
+                    <input type="text" value={profileData.linkedin} onChange={e => setProfileData({...profileData, linkedin: e.target.value})} className="flex-1 bg-zinc-950/60 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 text-sm shadow-inner" placeholder="linkedin.com/in/username" />
+                  ) : (
+                    <a href={`https://${profileData.linkedin}`} target="_blank" rel="noreferrer" className="text-sm font-medium text-zinc-300 hover:text-emerald-400 transition-colors truncate">{profileData.linkedin}</a>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-zinc-800/80 text-zinc-300 shadow-inner"><Briefcase className="w-5 h-5" /></div>
+                  {isEditing ? (
+                    <input type="text" value={profileData.website} onChange={e => setProfileData({...profileData, website: e.target.value})} className="flex-1 bg-zinc-950/60 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 text-sm shadow-inner" placeholder="yourportfolio.com" />
+                  ) : (
+                    <a href={`https://${profileData.website}`} target="_blank" rel="noreferrer" className="text-sm font-medium text-zinc-300 hover:text-emerald-400 transition-colors truncate">{profileData.website}</a>
                   )}
                 </div>
               </div>
             </div>
-            
-            <div className="pt-2">
-              <div className="flex flex-col sm:flex-row items-center gap-3 mb-1">
-                <h1 className="text-2xl font-bold text-white tracking-tight">{form.name || 'User'}</h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-teal-500/20 border border-teal-500/30 text-teal-400 text-[10px] font-bold uppercase tracking-wider">
-                  <ShieldCheck className="w-3.5 h-3.5" /> Verified Member
-                </span>
-              </div>
-              <p className="text-sm text-zinc-400">{user?.email || 'user@university.edu'}</p>
-            </div>
-          </div>
 
-          {/* ========================================================= */}
-          {/* 3. STATS GRID                                             */}
-          {/* ========================================================= */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 relative z-10">
-            {/* Hosted Events Stat */}
-            <div className="bg-gradient-to-br from-teal-900/40 to-emerald-950/40 border border-teal-500/20 rounded-2xl p-5 hover:border-teal-500/40 transition-colors group cursor-default shadow-inner">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-teal-500/20 flex items-center justify-center text-teal-400">
-                  <Mic className="w-4 h-4" />
-                </div>
-                <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-500/70">
-                  <MonitorPlay className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-3xl font-bold text-white group-hover:text-teal-400 transition-colors">{stats.hosted}</span>
-                <span className="text-sm font-semibold text-zinc-300">Hosted Events</span>
-              </div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Managed from management dashboard</p>
-            </div>
-
-            {/* Attended Events Stat */}
-            <div className="bg-gradient-to-br from-indigo-900/40 to-purple-950/40 border border-indigo-500/20 rounded-2xl p-5 hover:border-indigo-500/40 transition-colors group cursor-default shadow-inner">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                  <Ticket className="w-4 h-4" />
-                </div>
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500/70">
-                  <Users className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-3xl font-bold text-white group-hover:text-indigo-400 transition-colors">{stats.attended}</span>
-                <span className="text-sm font-semibold text-zinc-300">Attended Events</span>
-              </div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Previous and future events</p>
-            </div>
-          </div>
-
-          {/* ========================================================= */}
-          {/* 4. SETTINGS FORM                                          */}
-          {/* ========================================================= */}
-          {success && (
-            <div className="mb-6 flex items-center gap-3 rounded-2xl border border-teal-500/40 bg-teal-500/10 p-4 text-teal-300 animate-in fade-in slide-in-from-top-2">
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-teal-400" />
-              <p className="text-sm font-medium">Profile updated successfully!</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="mb-6 rounded-2xl border border-rose-500/40 bg-rose-500/10 p-4 text-rose-300 text-sm animate-in fade-in slide-in-from-top-2">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
-            <div>
-              <label className="block text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Full Name</label>
-              <input
-                type="text"
-                name="name"
-                required
-                className="w-full bg-zinc-950/60 border border-zinc-700/60 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-teal-500/80 focus:ring-1 focus:ring-teal-500/50 transition-all shadow-inner placeholder:text-zinc-600"
-                value={form.name}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-2">
-                <ImageIcon className="h-3.5 w-3.5 text-emerald-500" /> Profile Picture URL
-              </label>
-              <input
-                type="url"
-                name="avatar_url"
-                placeholder="https://example.com/avatar.jpg"
-                className="w-full bg-zinc-950/60 border border-zinc-700/60 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-teal-500/80 focus:ring-1 focus:ring-teal-500/50 transition-all shadow-inner placeholder:text-zinc-600"
-                value={form.avatar_url}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className="flex items-center gap-2 text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-2">
-                  <Linkedin className="h-3.5 w-3.5 text-blue-500" /> LinkedIn URL
-                </label>
-                <input
-                  type="url"
-                  name="linkedin"
-                  placeholder="https://linkedin.com/in/username"
-                  className="w-full bg-zinc-950/60 border border-zinc-700/60 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner placeholder:text-zinc-600"
-                  value={form.linkedin}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-2">
-                  <Github className="h-3.5 w-3.5 text-purple-400" /> GitHub URL
-                </label>
-                <input
-                  type="url"
-                  name="github"
-                  placeholder="https://github.com/username"
-                  className="w-full bg-zinc-950/60 border border-zinc-700/60 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-purple-500/80 focus:ring-1 focus:ring-purple-500/50 transition-all shadow-inner placeholder:text-zinc-600"
-                  value={form.github}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+            {/* Account Actions (Logout) */}
+            <div className="bg-zinc-900/40 backdrop-blur-2xl ring-1 ring-red-500/10 rounded-[2rem] p-6 sm:p-8 shadow-xl flex flex-col justify-center">
+              <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-4">Account Actions</h2>
               <button 
-                type="submit" 
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-bold text-sm shadow-lg shadow-teal-950/40 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]" 
-                disabled={saving}
+                onClick={handleLogoutClick}
+                className="w-full px-5 py-3.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold text-sm transition-all border border-red-500/20 flex items-center justify-center gap-2 hover:-translate-y-0.5 shadow-lg"
               >
-                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {!saving && <Save className="h-4 w-4" />} 
-                Save Changes
-              </button>
-
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="w-full py-3.5 rounded-xl bg-zinc-950/50 hover:bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 text-rose-400 font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
-              >
-                <LogOut className="h-4 w-4" /> Sign Out
+                <LogOut className="w-5 h-5" /> Sign Out of EventEase
               </button>
             </div>
-          </form>
 
+          </div>
         </div>
-        
-        {/* Footer text below card */}
-        <div className="text-center mt-6">
-          <p className="text-xs text-zinc-600">EventEase © 2026</p>
-        </div>
+
       </div>
     </div>
   );

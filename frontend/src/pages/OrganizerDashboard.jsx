@@ -66,7 +66,7 @@ export default function OrganizerDashboard() {
           </div>
           
           <button
-            onClick={() => navigate('/organizer')}
+            onClick={() => navigate('/create-event')}
             className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-medium text-sm shadow-lg shadow-emerald-950/40 flex items-center gap-2 transition-all hover:scale-105"
           >
             <PlusCircle className="w-4 h-4" /> Create New Event

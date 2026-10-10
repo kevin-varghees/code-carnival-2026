@@ -24,8 +24,9 @@ def _build_token(user: User) -> Token:
     )
 
 
-@router.post("/signup", response_model=Token, status_code=status.HTTP_201_CREATED)
-def signup(payload: UserCreate, db: Session = Depends(get_db)):
+# CHANGED: Route is now "/register" to perfectly match the React frontend API call
+@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
+def register(payload: UserCreate, db: Session = Depends(get_db)):
     email = payload.email.lower()
     if db.query(User).filter(User.email == email).first():
         raise HTTPException(
@@ -37,7 +38,10 @@ def signup(payload: UserCreate, db: Session = Depends(get_db)):
         name=payload.name.strip(),
         email=email,
         hashed_password=get_password_hash(payload.password),
-        role=payload.role,
+        
+        # Note: If your React frontend doesn't send a 'role', ensure your UserCreate 
+        # schema provides a default value for payload.role (e.g., 'attendee')
+        role=getattr(payload, 'role', 'attendee'), 
     )
     db.add(user)
     try:
