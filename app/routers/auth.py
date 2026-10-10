@@ -39,8 +39,11 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
         name=payload.name.strip(),
         email=email,
         hashed_password=get_password_hash(payload.password),
-        # Preserved: Safe role assignment to prevent frontend crashes if role is missing
-        role=getattr(payload, 'role', 'attendee'), 
+        role=getattr(payload, "role", "attendee"),
+        graduation_status=payload.graduation_status,
+        university=payload.university,
+        course=payload.course,
+        interests=payload.interests,
     )
     
     db.add(user)
@@ -83,10 +86,22 @@ def update_profile(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    current_user.name = payload.name or current_user.name
-    current_user.linkedin = payload.linkedin
-    current_user.github = payload.github
-    current_user.avatar_url = payload.avatar_url
+    if payload.name is not None:
+        current_user.name = payload.name
+    if payload.linkedin is not None:
+        current_user.linkedin = payload.linkedin
+    if payload.github is not None:
+        current_user.github = payload.github
+    if payload.avatar_url is not None:
+        current_user.avatar_url = payload.avatar_url
+    if payload.graduation_status is not None:
+        current_user.graduation_status = payload.graduation_status
+    if payload.university is not None:
+        current_user.university = payload.university
+    if payload.course is not None:
+        current_user.course = payload.course
+    if payload.interests is not None:
+        current_user.interests = payload.interests
     
     db.commit()
     db.refresh(current_user)

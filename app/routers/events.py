@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.database import get_db, utcnow
 from app.dependencies import get_current_user, verify_event_owner
 from app.models import Event, Registration, User
-from app.schemas.event import EventCreate, EventOut
+from app.schemas.event import EventCreate, EventOut, EventUpdate
 from app.schemas.registration import AttendeeOut
 from app.services.qr_service import generate_event_code
 
@@ -80,6 +80,40 @@ def get_event(event_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
         )
     return event
+
+
+@router.put("/{event_id}", response_model=EventOut)
+def update_event(
+    payload: EventUpdate,
+    event: Event = Depends(verify_event_owner),
+    db: Session = Depends(get_db),
+):
+    """Organizer only: update event details."""
+    if payload.title is not None:
+        event.title = payload.title.strip()
+    if payload.description is not None:
+        event.description = payload.description
+    if payload.date_time is not None:
+        event.date_time = payload.date_time
+    if payload.location is not None:
+        event.location = payload.location.strip()
+    if payload.capacity is not None:
+        event.capacity = payload.capacity
+
+    db.commit()
+    db.refresh(event)
+    return event
+
+
+@router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_event(
+    event: Event = Depends(verify_event_owner),
+    db: Session = Depends(get_db),
+):
+    """Organizer only: delete event and associated data."""
+    db.delete(event)
+    db.commit()
+    return None
 
 
 @router.get("/{event_id}/registrations", response_model=List[AttendeeOut])

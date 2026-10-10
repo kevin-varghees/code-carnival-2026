@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
@@ -10,6 +10,7 @@ from app.dependencies import get_current_user
 from app.models import Event, Registration, User
 from app.schemas.event import EventOut
 from app.schemas.registration import TicketOut
+from app.services.pdf_service import generate_ticket_pdf
 from app.services.qr_service import generate_unique_registration_token
 
 router = APIRouter(prefix="/registrations", tags=["Registrations"])
@@ -117,3 +118,50 @@ def my_tickets(
         .all()
     )
     return [_to_ticket(r) for r in registrations]
+
+
+@router.get("/{registration_id}/download")
+def download_ticket_pdf(
+    registration_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Download ticket pass as a PDF."""
+    registration = (
+        db.query(Registration)
+        .options(joinedload(Registration.event), joinedload(Registration.user))
+        .filter(Registration.id == registration_id)
+        .first()
+    )
+    if not registration:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Registration not found"
+        )
+
+    # Security check: only ticket holder or event organizer can download
+    if (
+        registration.user_id != current_user.id
+        and registration.event.organizer_id != current_user.id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to download this ticket",
+        )
+
+    formatted_date = registration.event.date_time.strftime("%B %d, %Y at %I:%M %p UTC")
+
+    pdf_stream = generate_ticket_pdf(
+        event_title=registration.event.title,
+        event_date=formatted_date,
+        event_location=registration.event.location,
+        attendee_name=registration.user.name,
+        attendee_email=registration.user.email,
+        registration_code=registration.registration_code,
+    )
+
+    filename = f"ticket_{registration.registration_code[:8]}.pdf"
+    return Response(
+        content=pdf_stream.getvalue(),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

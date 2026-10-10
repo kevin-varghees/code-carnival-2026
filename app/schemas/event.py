@@ -16,8 +16,22 @@ class EventCreate(BaseModel):
     @field_validator("date_time")
     @classmethod
     def normalize_to_naive_utc(cls, value: datetime) -> datetime:
-        # Timezone-aware input is converted to UTC; naive input is assumed to be UTC.
         if value.tzinfo is not None:
+            value = value.astimezone(timezone.utc).replace(tzinfo=None)
+        return value
+
+
+class EventUpdate(BaseModel):
+    title: Optional[str] = Field(default=None, min_length=1, max_length=200)
+    description: Optional[str] = None
+    date_time: Optional[datetime] = None
+    location: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    capacity: Optional[int] = Field(default=None, gt=0, le=100000)
+
+    @field_validator("date_time")
+    @classmethod
+    def normalize_to_naive_utc(cls, value: Optional[datetime]) -> Optional[datetime]:
+        if value is not None and value.tzinfo is not None:
             value = value.astimezone(timezone.utc).replace(tzinfo=None)
         return value
 

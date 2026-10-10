@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Column, DateTime, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.database import Base, utcnow
@@ -13,9 +13,17 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     role = Column(String(20), nullable=False, default="attendee")  # attendee | organizer
     created_at = Column(DateTime, nullable=False, default=utcnow)
+    
+    # Social links & avatar
     linkedin = Column(String, nullable=True)
     github = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
+
+    # Academic & Profile additions for frontend integration
+    graduation_status = Column(String(50), nullable=True)  # e.g., "Undergraduate", "Alumni"
+    university = Column(String(200), nullable=True)
+    course = Column(String(200), nullable=True)
+    interests = Column(Text, nullable=True)  # Comma-separated or JSON string of tags
 
     events = relationship("Event", back_populates="organizer")
     registrations = relationship(
