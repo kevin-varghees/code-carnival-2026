@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import APIClient from './api/client';
 import Navbar from './components/Navbar';
+import AIChatWidget from './components/AIChatWidget';
 import Explore from './pages/Explore';
 import Events from './pages/Events';
 import Login from './pages/Login';
@@ -263,6 +264,51 @@ export default function App() {
           .pulse-border {
             animation: pulseGuide 2.5s infinite alternate;
           }
+
+          @keyframes aiChatPanelIn {
+            from {
+              opacity: 0;
+              transform: translateY(14px) scale(0.97);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+
+          .ai-chat-panel {
+            transform-origin: bottom right;
+            animation: aiChatPanelIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+          }
+
+          @keyframes aiChatMessageIn {
+            from {
+              opacity: 0;
+              transform: translateY(7px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .ai-chat-message-enter {
+            animation: aiChatMessageIn 220ms ease-out both;
+          }
+
+          .ai-chat-launcher:focus-visible {
+            outline: 2px solid #a7f3d0;
+            outline-offset: 4px;
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .ai-chat-panel,
+            .ai-chat-message-enter,
+            .ai-chat-launcher {
+              animation: none !important;
+              scroll-behavior: auto !important;
+            }
+          }
         `}
       </style>
 
@@ -272,6 +318,7 @@ export default function App() {
         <Navbar user={user} onLogout={handleLogout} />
         
         <HypeManWidget />
+        <AIChatWidget user={user} />
 
         <AnimatedRoutes user={user} setUser={setUser} handleLogout={handleLogout} />
       </div>
