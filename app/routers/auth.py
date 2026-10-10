@@ -12,7 +12,7 @@ from app.services.auth_service import (
     verify_password,
 )
 
-router = APIRouter(prefix="/api/auth", tags=["Auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 def _build_token(user: User) -> Token:

@@ -56,13 +56,14 @@ export default function Login({ setUser }) {
     setLoading(true);
 
     try {
-      const response = await APIClient.post('/auth/login', formData);
-      localStorage.setItem('token', response.data.token);
+      // Fixed: Updated route path to match FastAPI backend prefix (/api/auth/login)
+      const response = await APIClient.post('/api/auth/login', formData);
+      localStorage.setItem('token', response.data.access_token);
       setUser(response.data.user);
       navigate('/');
     } catch (err) {
       if (err.response?.status === 404) {
-        setError('API Endpoint Not Found (404). Check your Flask/FastAPI routes.');
+        setError('API Endpoint Not Found (404). Check your FastAPI routes.');
       } else {
         setError(err.response?.data?.detail || err.response?.data?.message || 'Invalid email or password.');
       }
@@ -92,21 +93,21 @@ export default function Login({ setUser }) {
               opacity: 0;
             }
             10% {
-              opacity: 0.3; /* Appears smoothly out of the head */
+              opacity: 0.3;
             }
             80% {
               opacity: 0.15;
             }
             100% {
               transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.5) rotate(var(--rot));
-              opacity: 0; /* Fades out at the edges of the screen */
+              opacity: 0;
             }
           }
           .burst-item {
             position: absolute;
-            top: 25%; /* Anchored near the character's head */
+            top: 25%;
             left: 50%;
-            color: rgba(16, 185, 129, 0.5); /* Emerald color */
+            color: rgba(16, 185, 129, 0.5);
             animation: burstOut linear infinite;
             pointer-events: none;
             z-index: 0;
@@ -114,9 +115,7 @@ export default function Login({ setUser }) {
         `}
       </style>
 
-      {/* ========================================= */}
       {/* CONTINUOUS RADIAL "MIND BURST" BACKGROUND */}
-      {/* ========================================= */}
       {burstItems.map((item) => {
         const IconComponent = item.Icon;
         return (
@@ -140,9 +139,7 @@ export default function Login({ setUser }) {
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-950/30 rounded-full blur-[120px] pointer-events-none z-0" />
       <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:40px_40px] opacity-[0.02] pointer-events-none z-0" />
 
-      {/* ========================================= */}
-      {/* HUMAN DOODLE & FUNNY GREETING SECTION     */}
-      {/* ========================================= */}
+      {/* HUMAN DOODLE & FUNNY GREETING SECTION */}
       <div className="text-center mb-8 relative z-10 flex flex-col items-center">
         
         {/* Floating Human Character */}
@@ -152,14 +149,12 @@ export default function Login({ setUser }) {
           title="Click to change my face!"
         >
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500/20 to-teal-900/40 border-2 border-emerald-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)] group-hover:shadow-[0_0_50px_rgba(16,185,129,0.5)] transition-all overflow-hidden bg-zinc-950">
-            {/* Using the stable DiceBear 9.x API for beautiful, expressive avatars */}
             <img 
               src={`https://api.dicebear.com/9.x/micah/svg?seed=${doodleSeed}&backgroundColor=transparent&baseColor=f9c9b6`} 
               alt="Campus Guide" 
               className="w-full h-full object-contain scale-[1.15] translate-y-2"
             />
           </div>
-          {/* Animated Sparkles around the character */}
           <Sparkles className="absolute -top-1 -right-3 w-5 h-5 text-emerald-300 animate-pulse" />
           <Sparkles className="absolute -bottom-2 -left-2 w-4 h-4 text-teal-400 animate-pulse delay-150" />
         </div>
@@ -169,7 +164,6 @@ export default function Login({ setUser }) {
           <div className="px-5 py-2.5 bg-zinc-900/90 border border-zinc-800 rounded-2xl backdrop-blur-md shadow-xl text-emerald-300 text-sm font-semibold tracking-wide text-center max-w-[280px]">
             "{greeting}"
           </div>
-          {/* Speech Bubble Pointer */}
           <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-zinc-900/90 border-t border-l border-zinc-800 rotate-45 -z-10" />
         </div>
 
@@ -178,7 +172,6 @@ export default function Login({ setUser }) {
       {/* Glassmorphic Login Card */}
       <div className="w-full max-w-md bg-[#0a0f0d]/80 backdrop-blur-2xl border border-emerald-900/30 rounded-[2rem] p-8 shadow-2xl relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
         
-        {/* Error Alert Box */}
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium text-center animate-in fade-in zoom-in duration-300">
             {error}
@@ -186,7 +179,6 @@ export default function Login({ setUser }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email Input */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider pl-1">Email Address</label>
             <div className="relative flex items-center focus-within:text-emerald-400 text-zinc-500 transition-colors">
@@ -202,7 +194,6 @@ export default function Login({ setUser }) {
             </div>
           </div>
 
-          {/* Password Input */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider pl-1">Password</label>
             <div className="relative flex items-center focus-within:text-emerald-400 text-zinc-500 transition-colors">
@@ -218,7 +209,6 @@ export default function Login({ setUser }) {
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
