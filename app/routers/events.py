@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db, utcnow
-from app.dependencies import require_organizer, verify_event_owner
+from app.dependencies import get_current_user, verify_event_owner
 from app.models import Event, Registration, User
 from app.schemas.event import EventCreate, EventOut
 from app.schemas.registration import AttendeeOut
@@ -29,7 +29,7 @@ def list_upcoming_events(db: Session = Depends(get_db)):
 def create_event(
     payload: EventCreate,
     db: Session = Depends(get_db),
-    organizer: User = Depends(require_organizer),
+    organizer: User = Depends(get_current_user),
 ):
     last_error = None
     for _ in range(10):  # retry in the unlikely event of an event_code collision
@@ -61,9 +61,9 @@ def create_event(
 @router.get("/mine", response_model=List[EventOut])
 def list_my_events(
     db: Session = Depends(get_db),
-    organizer: User = Depends(require_organizer),
+    organizer: User = Depends(get_current_user),
 ):
-    """Organizer: all events created by the current organizer."""
+    """User: all events created by the current user."""
     return (
         db.query(Event)
         .filter(Event.organizer_id == organizer.id)
@@ -87,7 +87,7 @@ def list_event_registrations(
     event: Event = Depends(verify_event_owner),
     db: Session = Depends(get_db),
 ):
-    """Organizer (owner only): who has registered and who has checked in."""
+    """Event Owner only: who has registered and who has checked in."""
     registrations = (
         db.query(Registration)
         .options(joinedload(Registration.user), joinedload(Registration.checkin))

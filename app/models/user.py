@@ -13,6 +13,9 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     role = Column(String(20), nullable=False, default="attendee")  # attendee | organizer
     created_at = Column(DateTime, nullable=False, default=utcnow)
+    linkedin = Column(String, nullable=True)
+    github = Column(String, nullable=True)
+    avatar_url = Column(String, nullable=True)
 
     events = relationship("Event", back_populates="organizer")
     registrations = relationship(

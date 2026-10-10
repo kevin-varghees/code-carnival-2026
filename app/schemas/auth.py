@@ -27,6 +27,13 @@ class UserLogin(BaseModel):
     password: str = Field(min_length=1, max_length=72)
 
 
+class UserUpdateSchema(BaseModel):
+    name: Optional[str] = None
+    linkedin: Optional[str] = None
+    github: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -34,6 +41,9 @@ class UserOut(BaseModel):
     name: str
     email: EmailStr
     role: str
+    linkedin: Optional[str] = None
+    github: Optional[str] = None
+    avatar_url: Optional[str] = None
     created_at: UTCDatetime
 
 
